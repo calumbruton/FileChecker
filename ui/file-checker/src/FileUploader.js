@@ -39,7 +39,7 @@ function FileUploader() {
           maxWidth: "950px",
           margin: "0 auto",
           padding: "40px 25px",
-          marginTop: "50px"
+          marginTop: "20%"
         }}>
         <Button variant="contained" 
                 component="label" 
