@@ -6,7 +6,7 @@ function FileUploader() {
   const [file, setFile] = useState(null);
 
   const UPLOAD_ENDPOINT =
-    "http://localhost/react-php-file-upload/backend/upload.php";
+    "http://localhost:8080/file";
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -64,7 +64,3 @@ function FileUploader() {
 }
 
 export default FileUploader;
-
-
-//Modify the UPLOAD_ENDPOINT with the API URL.
-//The uploaded file can be retreived via $_FILES['avatar'] on the server-side(PHP).
