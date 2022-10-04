@@ -18,7 +18,7 @@ function FileUploader() {
 
   const uploadFile = async file => {
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("file", file);
 
     return await axios.post(UPLOAD_ENDPOINT, formData, {
       headers: {
