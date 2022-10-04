@@ -11,11 +11,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableWebMvc
 @EnableSwagger2
+@ComponentScan(basePackages = {"fc"})
 public class FilecheckerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(FilecheckerApplication.class, args);
-        System.out.println("The application has started");
+        System.out.println("The app has started");
 	}
 
 	@Bean

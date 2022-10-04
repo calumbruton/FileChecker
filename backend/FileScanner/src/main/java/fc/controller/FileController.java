@@ -1,12 +1,12 @@
-package controller;
+package fc.controller;
 
+import fc.producers.AVProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import producers.AVProducer;
 
 @RestController
 public class FileController {
@@ -25,11 +25,11 @@ public class FileController {
 
 
     @GetMapping("/file/report")
-    public String report(@RequestParam(value = "file") MultipartFile multipartFile) {
+    public String report(@RequestParam(value = "scanId") String scanId) {
 
         // Get Metadata from MongoDB
 
-        return String.format("Hello %s!", multipartFile.getName());
+        return String.format("Recovering report information for file scan with id: %s!", scanId);
     }
 
 }
