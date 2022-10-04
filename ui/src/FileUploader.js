@@ -6,7 +6,7 @@ function FileUploader() {
   const [file, setFile] = useState(null);
 
   const UPLOAD_ENDPOINT =
-    "http://localhost:8080/file";
+    "http://localhost:8080/file/scan";
 
   const handleSubmit = async e => {
     e.preventDefault();
