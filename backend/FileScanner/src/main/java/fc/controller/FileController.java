@@ -2,10 +2,7 @@ package fc.controller;
 
 import fc.producers.AVProducer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -28,6 +25,7 @@ public class FileController {
     public String report(@RequestParam(value = "scanId") String scanId) {
 
         // Get Metadata from MongoDB
+        producer.publishToTopic("av-engines", "calum message");
 
         return String.format("Recovering report information for file scan with id: %s!", scanId);
     }

@@ -1,8 +1,10 @@
-package service.impl;
+package fc.service.impl;
 
-import service.FileUploadService;
+import fc.service.FileUploadService;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Service
 public class FileUploadServiceImpl implements FileUploadService {
 
     @Override

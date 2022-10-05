@@ -1,4 +1,4 @@
-package service;
+package fc.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
