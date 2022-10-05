@@ -1,18 +1,26 @@
 package fc.controller;
 
+import fc.model.Scan;
 import fc.producers.AVProducer;
+import fc.repository.ScanRepository;
 import fc.util.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @RestController
 public class FileController {
 
     @Autowired
     AVProducer producer;
+
+    @Autowired
+    ScanRepository repository;
 
     @PostMapping("/file/scan")
     public void scan(@RequestParam(value = "file") MultipartFile multipartFile) {
@@ -27,13 +35,20 @@ public class FileController {
 
         String scan_id = new RandomString().nextString();
         String permalink = "https://localhost:3000/file/report/" + scan_id;
+        String document_link = "https://anS3bucketLinkToTheDocument";
         String response_code = "1";
         String verbose_msg = "Scan request successfully queued, come back later for the report";
+        LocalDateTime date_time = LocalDateTime.now();
+
+        Scan scan = new Scan(scan_id, permalink, document_link, date_time);
 
         // Upload to S3 and MongoDB
+        repository.save(scan);
 
         // Send message to Kafka
         producer.publishToTopic("av-engines", "calum message");
+
+        repository.findById(scan_id);
     }
 
 
