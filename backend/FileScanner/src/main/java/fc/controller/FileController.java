@@ -1,10 +1,15 @@
 package fc.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fc.model.Scan;
 import fc.producers.AVProducer;
 import fc.repository.ScanRepository;
 import fc.util.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 public class FileController {
@@ -23,42 +29,56 @@ public class FileController {
     ScanRepository repository;
 
     @PostMapping("/file/scan")
-    public void scan(@RequestParam(value = "file") MultipartFile multipartFile) {
-//        {
-//         'permalink': 'https://www.virustotal.com/file/d140c...244ef892e5/analysis/1359112395/',
-//         'resource': 'd140c244ef892e59c7f68bd0c6f74bb711032563e2a12fa9dda5b760daecd556',
-//         'response_code': 1,
-//         'scan_id': 'd140c244ef892e59c7f68bd0c6f74bb711032563e2a12fa9dda5b760daecd556-1359112395',
-//         'verbose_msg': 'Scan request successfully queued, come back later for the report',
-//         'sha256': 'd140c244ef892e59c7f68bd0c6f74bb711032563e2a12fa9dda5b760daecd556'
-//        }
+    public ResponseEntity<Object> scan(@RequestParam MultipartFile multipartFile) {
+        try {
+            String scan_id = new RandomString().nextString();
+            String permalink = "https://localhost:3000/file/report/" + scan_id;
+            String document_link = "https://anS3bucketLinkToTheDocument";
+            LocalDateTime date_time = LocalDateTime.now();
 
-        String scan_id = new RandomString().nextString();
-        String permalink = "https://localhost:3000/file/report/" + scan_id;
-        String document_link = "https://anS3bucketLinkToTheDocument";
-        String response_code = "1";
-        String verbose_msg = "Scan request successfully queued, come back later for the report";
-        LocalDateTime date_time = LocalDateTime.now();
+            Scan scan = new Scan(scan_id, permalink, document_link, date_time);
 
-        Scan scan = new Scan(scan_id, permalink, document_link, date_time);
+            // Upload to S3 and MongoDB
+            repository.insert(scan);
 
-        // Upload to S3 and MongoDB
-        repository.save(scan);
+            // Send message to Kafka for AV Engines to Consume
+            ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+            String scanJson = mapper.writeValueAsString(scan);
+            producer.publishToTopic("av-engines", scanJson);
 
-        // Send message to Kafka
-        producer.publishToTopic("av-engines", "calum message");
+            // Create response json
+            ObjectNode response = mapper.valueToTree(scan);
+            response.remove("positives");
+            response.remove("total");
+            response.remove("scans");
+            response.remove("scan_date");
+            response.put("response_code", 1);
+            response.put("verbose_msg","Scan request successfully queued, come back later for the report" );
+            return new ResponseEntity<>(response.toPrettyString(), HttpStatus.OK);
 
-        repository.findById(scan_id);
+        } catch (Exception e){
+            System.out.println("Error occurred " + e);
+            return new ResponseEntity<>("Scan request failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
     @GetMapping("/file/report")
-    public String report(@RequestParam(value = "scanId") String scanId) {
+    public ResponseEntity<Object> report(@RequestParam String scan_Id) {
 
         // Get Metadata from MongoDB
-        producer.publishToTopic("av-engines", "calum message");
+        Optional<Scan> scan_document = repository.findById(scan_Id);
+        if (!scan_document.isPresent()) {
+            return new ResponseEntity<>("Scan report failed, no scan with id " + scan_Id, HttpStatus.BAD_REQUEST);
+        }
 
-        return String.format("Recovering report information for file scan with id: %s!", scanId);
+        // Create response json
+        Scan scan = scan_document.get();
+        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+        ObjectNode response = mapper.valueToTree(scan);
+        response.put("response_code", 1);
+        response.put("verbose_msg","Scan finished, scan information embedded in this object" );
+        return new ResponseEntity<>(response.toPrettyString(), HttpStatus.OK);
     }
 
 }

@@ -14,4 +14,5 @@ public class AVProducer {
         System.out.println("publishing to topic " + topic);
         this.kafkaTemplate.send(topic, message);
     }
+
 }
