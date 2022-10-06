@@ -1,11 +1,15 @@
 package fc.CrowdstrikeAV;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fc.model.Scan;
+import fc.model.ScanResult;
 import fc.producers.AVProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class CrowdStrikeScanner {
@@ -20,9 +24,15 @@ public class CrowdStrikeScanner {
             mapper.findAndRegisterModules();
             Scan scan = mapper.readValue(message, Scan.class);
             System.out.println("Consumed message in CrowdStrike Scanner " + scan.getScan_id());
-            producer.publishToTopic("av-results", "Crowdstrike");
+
+            // Simulate a scan result
+            ScanResult scan_result = new ScanResult(true, "6.5.2.0.280", "Generic.dx!rkx", LocalDateTime.now());
+            ObjectNode node = mapper.valueToTree(scan_result);
+            node.put("scan_id", scan.getScan_id());
+            producer.publishToTopic("av-results", node.toPrettyString());
+
         } catch (Exception e) {
-            System.out.println("An error occured processing av-engine message");
+            System.out.println("An error occurred processing CrowdStike av-engine message");
         }
     }
 }

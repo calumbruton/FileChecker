@@ -29,7 +29,7 @@ public class FileController {
     ScanRepository repository;
 
     @PostMapping("/file/scan")
-    public ResponseEntity<Object> scan(@RequestParam MultipartFile multipartFile) {
+    public ResponseEntity<Object> scan(@RequestParam(value = "file") MultipartFile multipartFile) {
         try {
             String scan_id = new RandomString().nextString();
             String permalink = "https://localhost:3000/file/report/" + scan_id;
