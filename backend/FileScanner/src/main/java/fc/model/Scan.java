@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,6 +27,7 @@ public class Scan {
         this.permalink = permalink;
         this.document_link = document_link;
         this.scan_date = scan_date;
+        this.scans = new ArrayList<>();
     }
 
 

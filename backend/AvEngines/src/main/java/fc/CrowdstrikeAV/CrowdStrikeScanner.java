@@ -1,7 +1,6 @@
 package fc.CrowdstrikeAV;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fc.model.Scan;
 import fc.model.ScanResult;
 import fc.producers.AVProducer;
@@ -26,10 +25,8 @@ public class CrowdStrikeScanner {
             System.out.println("Consumed message in CrowdStrike Scanner " + scan.getScan_id());
 
             // Simulate a scan result
-            ScanResult scan_result = new ScanResult(true, "6.5.2.0.280", "Generic.dx!rkx", LocalDateTime.now());
-            ObjectNode node = mapper.valueToTree(scan_result);
-            node.put("scan_id", scan.getScan_id());
-            producer.publishToTopic("av-results", node.toPrettyString());
+            ScanResult scan_result = new ScanResult(scan.getScan_id(), "CrowdStrike Falcon", true, "6.5.2.0.280", "Generic.dx!rkx", LocalDateTime.now());
+            producer.publishToTopic("av-results", mapper.writeValueAsString(scan_result));
 
         } catch (Exception e) {
             System.out.println("An error occurred processing CrowdStike av-engine message");

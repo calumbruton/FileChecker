@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ScanResult {
 
+    private String scan_id;
+    private String engine;
     private Boolean detected;
     private String version;
     private String result;
