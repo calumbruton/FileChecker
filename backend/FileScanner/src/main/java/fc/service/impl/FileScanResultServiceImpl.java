@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import fc.model.ScanResult;
-import fc.repository.ScanRepository;
+import fc.repository.ScanRepositoryCustom;
 import fc.service.FileScanResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class FileScanResultServiceImpl implements FileScanResultService {
 
     @Autowired
-    ScanRepository repository;
+    ScanRepositoryCustom repository;
 
     @Override
     @KafkaListener(topics = "av-results", groupId = "results-processor")
@@ -25,7 +25,7 @@ public class FileScanResultServiceImpl implements FileScanResultService {
             String scan_id = scan_result.getScan_id();
             String formattedResult = FormatMessage(scan_result);
 
-            // ScanResult scan = mapper.readValue(message, ScanResult.class);
+            repository.updateScansUsingFindAndModify(scan_id, scan_result);
 
             System.out.println("Processing the result from " + message);
 

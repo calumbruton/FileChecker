@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ScanRepository extends MongoRepository<Scan, String> {
-
 }
